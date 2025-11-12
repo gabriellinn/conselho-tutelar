@@ -26,7 +26,7 @@ const dbConfig = {
     host: finalHost,
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'conselho_tutelar',
+    database: process.env.DB_NAME || 'conselhotutelar',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
