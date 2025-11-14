@@ -108,6 +108,190 @@ app.get('/conselheiros', async (req, res) => {
     }
 });
 
+// Endpoint para criar um novo conselheiro
+app.post('/conselheiros', async (req, res) => {
+    try {
+        const {
+            nome,
+            cargo,
+            cpf,
+            rg,
+            dataNascimento,
+            endereco,
+            celularDDD,
+            celularNumero,
+            nacionalidade,
+            foto
+        } = req.body;
+
+        // Buscar o próximo ID de conselheiro
+        const [ultimoConselheiro] = await query('SELECT MAX(idConselheiro) as maxId FROM Conselheiro');
+        const idConselheiro = (ultimoConselheiro?.maxId || 0) + 1;
+
+        // Formatar contato (DDD + número)
+        const contatoConselheiro = celularDDD && celularNumero 
+            ? `(${celularDDD}) ${celularNumero}` 
+            : null;
+
+        // Converter CPF e RG para strings (remover pontos, traços e espaços)
+        // CPF e RG são muito grandes para INT, então mantemos como string
+        const cpfLimpo = cpf ? cpf.replace(/\D/g, '') : null;
+        const rgLimpo = rg ? rg.replace(/\D/g, '') : null;
+
+        // Criar o conselheiro (incluindo cargo se existir na tabela)
+        // Se a coluna cargo não existir, o banco vai ignorar ou dar erro - ajuste conforme necessário
+        const sql = `INSERT INTO Conselheiro 
+            (idConselheiro, nomeConselheiro, contatoConselheiro, rg, cpf, nacionalidade, endereco, data_nascimento, foto, cargo) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        
+        await query(sql, [
+            idConselheiro,
+            nome || null,
+            contatoConselheiro,
+            rgLimpo,
+            cpfLimpo,
+            nacionalidade || null,
+            endereco || null,
+            dataNascimento || null,
+            foto || null,
+            cargo || null
+        ]);
+
+        const conselheiro = {
+            idConselheiro,
+            nomeConselheiro: nome || null,
+            contatoConselheiro,
+            rg: rgLimpo,
+            cpf: cpfLimpo,
+            nacionalidade: nacionalidade || null,
+            endereco: endereco || null,
+            data_nascimento: dataNascimento || null,
+            foto: foto || null,
+            cargo: cargo || null
+        };
+
+        res.status(201).json({ message: 'Conselheiro criado com sucesso', conselheiro });
+    } catch (error) {
+        console.error('Erro ao criar conselheiro:', error);
+        res.status(500).json({ error: 'Erro ao criar conselheiro', details: error.message });
+    }
+});
+
+// Endpoint para buscar um conselheiro por ID
+app.get('/conselheiros/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const conselheiros = await query('SELECT * FROM Conselheiro WHERE idConselheiro = ?', [id]);
+        
+        if (conselheiros.length === 0) {
+            return res.status(404).json({ error: 'Conselheiro não encontrado' });
+        }
+        
+        res.json(conselheiros[0]);
+    } catch (error) {
+        console.error('Erro ao buscar conselheiro:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// Endpoint para atualizar um conselheiro
+app.put('/conselheiros/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const {
+            nome,
+            cargo,
+            cpf,
+            rg,
+            dataNascimento,
+            endereco,
+            celularDDD,
+            celularNumero,
+            nacionalidade,
+            foto
+        } = req.body;
+
+        // Verificar se o conselheiro existe
+        const [conselheiroExistente] = await query('SELECT * FROM Conselheiro WHERE idConselheiro = ?', [id]);
+        if (!conselheiroExistente) {
+            return res.status(404).json({ error: 'Conselheiro não encontrado' });
+        }
+
+        // Formatar contato (DDD + número)
+        const contatoConselheiro = celularDDD && celularNumero 
+            ? `(${celularDDD}) ${celularNumero}` 
+            : null;
+
+        // Converter CPF e RG para strings (remover pontos, traços e espaços)
+        const cpfLimpo = cpf ? cpf.replace(/\D/g, '') : null;
+        const rgLimpo = rg ? rg.replace(/\D/g, '') : null;
+
+        // Atualizar o conselheiro
+        const sql = `UPDATE Conselheiro 
+            SET nomeConselheiro = ?, 
+                contatoConselheiro = ?, 
+                rg = ?, 
+                cpf = ?, 
+                nacionalidade = ?, 
+                endereco = ?, 
+                data_nascimento = ?, 
+                foto = ?, 
+                cargo = ?
+            WHERE idConselheiro = ?`;
+        
+        await query(sql, [
+            nome || null,
+            contatoConselheiro,
+            rgLimpo,
+            cpfLimpo,
+            nacionalidade || null,
+            endereco || null,
+            dataNascimento || null,
+            foto || null,
+            cargo || null,
+            id
+        ]);
+
+        // Buscar o conselheiro atualizado
+        const [conselheiroAtualizado] = await query('SELECT * FROM Conselheiro WHERE idConselheiro = ?', [id]);
+
+        res.json({ message: 'Conselheiro atualizado com sucesso', conselheiro: conselheiroAtualizado });
+    } catch (error) {
+        console.error('Erro ao atualizar conselheiro:', error);
+        res.status(500).json({ error: 'Erro ao atualizar conselheiro', details: error.message });
+    }
+});
+
+// Endpoint para deletar um conselheiro
+app.delete('/conselheiros/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Verificar se o conselheiro existe
+        const [conselheiroExistente] = await query('SELECT * FROM Conselheiro WHERE idConselheiro = ?', [id]);
+        if (!conselheiroExistente) {
+            return res.status(404).json({ error: 'Conselheiro não encontrado' });
+        }
+
+        // Deletar o conselheiro
+        await query('DELETE FROM Conselheiro WHERE idConselheiro = ?', [id]);
+
+        res.json({ message: 'Conselheiro deletado com sucesso' });
+    } catch (error) {
+        console.error('Erro ao deletar conselheiro:', error);
+        
+        // Verificar se é erro de foreign key constraint
+        if (error.code === 'ER_ROW_IS_REFERENCED_2') {
+            return res.status(400).json({ 
+                error: 'Não é possível deletar este conselheiro. Existem registros que referenciam este conselheiro.',
+                details: error.message 
+            });
+        }
+        
+        res.status(500).json({ error: 'Erro ao deletar conselheiro', details: error.message });
+    }
+});
+
 // ==================== DENÚNCIAS ====================
 // Endpoint para criar uma nova denúncia
 app.post('/denuncias', async (req, res) => {

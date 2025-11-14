@@ -1,0 +1,10 @@
+/* css/mapa.css */
+
+/* Define uma altura para o contêiner do mapa */
+.map-wrapper {
+  height: calc(100vh - 200px); /* Altura da viewport menos espaço do header */
+  width: 100%;
+  margin-top: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+}

@@ -120,7 +120,7 @@ function VisualizarDocumentos() {
         <Card className="visualizar-documentos-card">
           <Card.Header className="visualizar-documentos-header">
             <h2 className="visualizar-documentos-title mb-0">
-              <i className="bi bi-file-earmark-text me-2"></i>
+              <i className="bi bi-file-earmark me-2"></i>
               Documentos Salvos
             </h2>
           </Card.Header>

@@ -1,21 +1,85 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Card, Form, Button, InputGroup, FormControl } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Form, Button, InputGroup, FormControl, Alert, Spinner } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './CadastrarProfissional.css'; // Novo arquivo para estilos específicos desta tela
+import './CadastrarProfissional.css';
+import { criarConselheiro, buscarConselheiroPorId, atualizarConselheiro } from '../../api/conselheiros';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 function CadastrarProfissional() {
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const idEdicao = searchParams.get('id');
+    const [isEditMode, setIsEditMode] = useState(!!idEdicao);
     const [formData, setFormData] = useState({
         nome: '',
         cargo: '', // 'Secretário/a' ou 'Conselheiro/a'
         cpf: '',
         rg: '',
         dataNascimento: '',
-        email: '',
         endereco: '',
         celularDDD: '',
         celularNumero: '',
+        nacionalidade: '',
         fotoPerfil: null, // Para armazenar o arquivo da imagem
     });
+    const [loading, setLoading] = useState(false);
+    const [loadingData, setLoadingData] = useState(false);
+    const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(false);
+
+    // Carregar dados do conselheiro se estiver em modo de edição
+    const carregarDadosConselheiro = async (id) => {
+        try {
+            setLoadingData(true);
+            setError(null);
+            const conselheiro = await buscarConselheiroPorId(id);
+            
+            // Extrair DDD e número do contato se existir
+            let celularDDD = '';
+            let celularNumero = '';
+            if (conselheiro.contatoConselheiro) {
+                const match = conselheiro.contatoConselheiro.match(/\((\d+)\)\s*(.+)/);
+                if (match) {
+                    celularDDD = match[1];
+                    celularNumero = match[2];
+                }
+            }
+
+            // Converter cargo do ENUM para o formato do formulário
+            let cargoForm = '';
+            if (conselheiro.cargo === 'secretario') {
+                cargoForm = 'Secretário/a';
+            } else if (conselheiro.cargo === 'conselheiro') {
+                cargoForm = 'Conselheiro/a';
+            }
+
+            setFormData({
+                nome: conselheiro.nomeConselheiro || '',
+                cargo: cargoForm,
+                cpf: conselheiro.cpf ? String(conselheiro.cpf) : '',
+                rg: conselheiro.rg ? String(conselheiro.rg) : '',
+                dataNascimento: conselheiro.data_nascimento || '',
+                endereco: conselheiro.endereco || '',
+                celularDDD: celularDDD,
+                celularNumero: celularNumero,
+                nacionalidade: conselheiro.nacionalidade || '',
+                fotoPerfil: null,
+            });
+        } catch (err) {
+            console.error('Erro ao carregar conselheiro:', err);
+            setError(err.message || 'Erro ao carregar dados do profissional.');
+        } finally {
+            setLoadingData(false);
+        }
+    };
+
+    // Carregar dados do conselheiro se estiver em modo de edição
+    useEffect(() => {
+        if (idEdicao) {
+            carregarDadosConselheiro(idEdicao);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [idEdicao]);
 
     const handleChange = (e) => {
         const { name, value, type, files } = e.target;
@@ -32,26 +96,108 @@ function CadastrarProfissional() {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Dados do Novo Profissional:', formData);
-        // Aqui você enviaria os dados para uma API
-        alert('Profissional cadastrado! Verifique o console para os dados.');
-        // Opcional: Redirecionar o usuário após o cadastro
-        // navigate('/gerenciar-profissionais');
+        setLoading(true);
+        setError(null);
+        setSuccess(false);
+
+        try {
+            // Converter cargo para o formato do ENUM do banco de dados
+            let cargoEnum = null;
+            if (formData.cargo === 'Secretário/a') {
+                cargoEnum = 'secretario';
+            } else if (formData.cargo === 'Conselheiro/a') {
+                cargoEnum = 'conselheiro';
+            }
+
+            // Preparar dados para enviar ao backend
+            const dadosConselheiro = {
+                nome: formData.nome,
+                cargo: cargoEnum,
+                cpf: formData.cpf,
+                rg: formData.rg,
+                dataNascimento: formData.dataNascimento,
+                endereco: formData.endereco,
+                celularDDD: formData.celularDDD,
+                celularNumero: formData.celularNumero,
+                nacionalidade: formData.nacionalidade || null,
+                // Foto será implementada depois se necessário
+                foto: null
+            };
+
+            if (isEditMode && idEdicao) {
+                // Atualizar conselheiro existente
+                await atualizarConselheiro(idEdicao, dadosConselheiro);
+                setSuccess(true);
+                alert('Profissional atualizado com sucesso!');
+            } else {
+                // Criar novo conselheiro
+                await criarConselheiro(dadosConselheiro);
+                setSuccess(true);
+                alert('Profissional cadastrado com sucesso!');
+                
+                // Limpar formulário apenas se for criação
+                setFormData({
+                    nome: '',
+                    cargo: '',
+                    cpf: '',
+                    rg: '',
+                    dataNascimento: '',
+                    endereco: '',
+                    celularDDD: '',
+                    celularNumero: '',
+                    nacionalidade: '',
+                    fotoPerfil: null,
+                });
+            }
+
+            // Redirecionar para gerenciar profissionais após 2 segundos
+            setTimeout(() => {
+                navigate('/home/gerenciar-profissionais');
+            }, 2000);
+        } catch (err) {
+            console.error('Erro ao salvar profissional:', err);
+            setError(err.message || 'Erro ao salvar profissional. Verifique se o servidor está rodando.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleCancel = () => {
-        console.log('Cadastro cancelado.');
-        // Opcional: Redirecionar o usuário para a página anterior ou gerenciar profissionais
-        // navigate('/gerenciar-profissionais');
+        navigate('/home/gerenciar-profissionais');
     };
 
     return (
             <Container className="cadastrar-profissional-container my-5">
                 <Card className="cadastrar-profissional-card shadow-lg">
                     <Card.Body className="p-4">
-                        <h2 className="text-center mb-5 cadastrar-profissional-title">CADASTRAR NOVO PROFISSIONAL</h2>
+                        <h2 className="text-center mb-5 cadastrar-profissional-title">
+                            {isEditMode ? 'EDITAR PROFISSIONAL' : 'CADASTRAR NOVO PROFISSIONAL'}
+                        </h2>
+
+                        {error && (
+                            <Alert variant="danger" className="mb-4">
+                                <Alert.Heading>Erro!</Alert.Heading>
+                                <p>{error}</p>
+                            </Alert>
+                        )}
+
+                        {success && (
+                            <Alert variant="success" className="mb-4">
+                                <Alert.Heading>Sucesso!</Alert.Heading>
+                                <p>{isEditMode ? 'Profissional atualizado com sucesso! Redirecionando...' : 'Profissional cadastrado com sucesso! Redirecionando...'}</p>
+                            </Alert>
+                        )}
+
+                        {loadingData && (
+                            <div className="text-center mb-4">
+                                <Spinner animation="border" role="status">
+                                    <span className="visually-hidden">Carregando dados...</span>
+                                </Spinner>
+                                <p className="mt-2">Carregando dados do profissional...</p>
+                            </div>
+                        )}
 
                         <Form onSubmit={handleSubmit}>
 
@@ -64,6 +210,7 @@ function CadastrarProfissional() {
                                         value={formData.nome}
                                         onChange={handleChange}
                                         placeholder="Nome completo do profissional"
+                                        disabled={loadingData}
                                         required
                                     />
                                 </Col>
@@ -81,7 +228,7 @@ function CadastrarProfissional() {
                                         value="Secretário/a"
                                         checked={formData.cargo === 'Secretário/a'}
                                         onChange={handleChange}
-                                        required
+                                        disabled={loadingData}
                                     />
                                     <Form.Check
                                         inline
@@ -92,6 +239,7 @@ function CadastrarProfissional() {
                                         value="Conselheiro/a"
                                         checked={formData.cargo === 'Conselheiro/a'}
                                         onChange={handleChange}
+                                        disabled={loadingData}
                                     />
                                 </Col>
                             </Form.Group>
@@ -106,6 +254,7 @@ function CadastrarProfissional() {
                                         onChange={handleChange}
                                         placeholder="Ex: 000.000.000-00"
                                         maxLength="14" // Para formatar com pontos e traço
+                                        disabled={loadingData}
                                         required
                                     />
                                 </Col>
@@ -121,6 +270,7 @@ function CadastrarProfissional() {
                                         onChange={handleChange}
                                         placeholder="Ex: 00.000.000-0"
                                         maxLength="12" // Depende do formato do RG
+                                        disabled={loadingData}
                                         required
                                     />
                                 </Col>
@@ -134,21 +284,22 @@ function CadastrarProfissional() {
                                         name="dataNascimento"
                                         value={formData.dataNascimento}
                                         onChange={handleChange}
+                                        disabled={loadingData}
                                         required
                                     />
                                 </Col>
                             </Form.Group>
 
-                            <Form.Group as={Row} className="mb-3 align-items-center" controlId="formEmail">
-                                <Form.Label column sm="3">E-mail:</Form.Label>
+                            <Form.Group as={Row} className="mb-3 align-items-center" controlId="formNacionalidade">
+                                <Form.Label column sm="3">Nacionalidade:</Form.Label>
                                 <Col sm="9">
                                     <Form.Control
-                                        type="email"
-                                        name="email"
-                                        value={formData.email}
+                                        type="text"
+                                        name="nacionalidade"
+                                        value={formData.nacionalidade}
                                         onChange={handleChange}
-                                        placeholder="nome@exemplo.com"
-                                        required
+                                        placeholder="Ex: Brasileiro"
+                                        disabled={loadingData}
                                     />
                                 </Col>
                             </Form.Group>
@@ -162,6 +313,7 @@ function CadastrarProfissional() {
                                         value={formData.endereco}
                                         onChange={handleChange}
                                         placeholder="Rua, Número, Bairro, Cidade, Estado, CEP"
+                                        disabled={loadingData}
                                         required
                                     />
                                 </Col>
@@ -180,6 +332,7 @@ function CadastrarProfissional() {
                                             placeholder="(__)"
                                             maxLength="2"
                                             className="ddd-input"
+                                            disabled={loadingData}
                                             required
                                         />
                                         <FormControl
@@ -190,6 +343,7 @@ function CadastrarProfissional() {
                                             placeholder="_____-____"
                                             maxLength="10" // Ex: 99999-9999
                                             className="numero-celular-input"
+                                            disabled={loadingData}
                                             required
                                         />
                                     </InputGroup>
@@ -205,11 +359,13 @@ function CadastrarProfissional() {
                                         onChange={handleChange}
                                         className="d-none" // Esconde o input de arquivo padrão
                                         id="uploadFotoPerfil"
+                                        disabled={loadingData}
                                     />
                                     <Button
                                         variant="outline-secondary"
                                         onClick={() => document.getElementById('uploadFotoPerfil').click()}
                                         className="anexar-imagem-button"
+                                        disabled={loadingData}
                                     >
                                         Anexar Imagem <i className="bi bi-paperclip ms-2"></i>
                                     </Button>
@@ -220,10 +376,35 @@ function CadastrarProfissional() {
                             </Form.Group>
 
                             <div className="d-flex justify-content-center mt-5 button-group">
-                                <Button variant="primary" type="submit" className="submit-button me-3">
-                                    Cadastrar
+                                <Button 
+                                    variant="primary" 
+                                    type="submit" 
+                                    className="submit-button me-3"
+                                    disabled={loading || loadingData}
+                                >
+                                    {loading ? (
+                                        <>
+                                            <Spinner
+                                                as="span"
+                                                animation="border"
+                                                size="sm"
+                                                role="status"
+                                                aria-hidden="true"
+                                                className="me-2"
+                                            />
+                                            {isEditMode ? 'Atualizando...' : 'Cadastrando...'}
+                                        </>
+                                    ) : (
+                                        isEditMode ? 'Atualizar' : 'Cadastrar'
+                                    )}
                                 </Button>
-                                <Button variant="secondary" type="button" onClick={handleCancel} className="cancel-button">
+                                <Button 
+                                    variant="secondary" 
+                                    type="button" 
+                                    onClick={handleCancel} 
+                                    className="cancel-button"
+                                    disabled={loading || loadingData}
+                                >
                                     Cancelar
                                 </Button>
                             </div>

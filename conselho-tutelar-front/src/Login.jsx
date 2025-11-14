@@ -14,8 +14,37 @@ function Login() {
   const handleLogin = (e) => {
     e.preventDefault()
 
+    // Login como administrador (acesso total)
     if (usuario == "admin" && senha == "admin") {
+      const userInfo = {
+        usuario: usuario,
+        cargo: 'admin' // Admin tem acesso a todas as páginas
+      };
+      
+      localStorage.setItem('userInfo', JSON.stringify(userInfo));
       navigate('/home');
+    } 
+    // Login como secretário
+    else if (usuario == "secretario" && senha == "secretario") {
+      const userInfo = {
+        usuario: usuario,
+        cargo: 'secretario'
+      };
+      
+      localStorage.setItem('userInfo', JSON.stringify(userInfo));
+      navigate('/home');
+    } 
+    // Login como conselheiro (acesso limitado)
+    else if (usuario == "conselheiro" && senha == "conselheiro") {
+      const userInfo = {
+        usuario: usuario,
+        cargo: 'conselheiro'
+      };
+      
+      localStorage.setItem('userInfo', JSON.stringify(userInfo));
+      navigate('/home');
+    } else {
+      alert('Usuário ou senha incorretos!');
     }
 
     // Handle login logic here

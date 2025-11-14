@@ -22,6 +22,8 @@ import PerfilAdministrador from './pages/perfilAdministrador/PerfilAdministrador
 import GerenciarProfissionais from './pages/gerenciarProfissionais/GerenciarProfissionais.jsx';
 import CadastrarProfissional from './pages/cadastrarProfissionais/CadastrarProfissional.jsx';
 import VisualizarDocumentos from './pages/visualizarDocumentos/VisualizarDocumentos.jsx';
+import Mapa from './pages/mapas/mapa.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 
 const router = createBrowserRouter([
   {
@@ -60,19 +62,35 @@ const router = createBrowserRouter([
       },
       {
         path: "perfil-administrador",
-        element: <PerfilAdministrador />,
+        element: (
+          <ProtectedRoute>
+            <PerfilAdministrador />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "gerenciar-profissionais",
-        element: <GerenciarProfissionais />,
+        element: (
+          <ProtectedRoute>
+            <GerenciarProfissionais />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "cadastrar-profissional",
-        element: <CadastrarProfissional />,
+        element: (
+          <ProtectedRoute>
+            <CadastrarProfissional />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "visualizar-documentos",
         element: <VisualizarDocumentos />,
+      },
+      {
+        path: "mapas",
+        element: <Mapa />,
       },
     ],
   },
