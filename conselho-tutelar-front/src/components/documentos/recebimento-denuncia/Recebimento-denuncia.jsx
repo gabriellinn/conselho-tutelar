@@ -13,7 +13,10 @@ function RecebimentoDenuncia() {
     fatos: '',
     nomeDataNascimentoCriancaAdolescente: '',
     nomesPaisResponsaveis: '',
-    endereco: '',
+    rua: '',
+    numero: '',
+    bairro: '',
+    cidade: '',
     conselheiroRecebeu: '',
     dataAveriguacao: '',
     conselheiroEfetuouAveriguacao: ''
@@ -44,8 +47,11 @@ function RecebimentoDenuncia() {
     e.preventDefault();
     try {
       const { enviarDenuncia } = await import('../../../api/denuncia');
+      // Combinar campos de endereço para enviar ao backend
+      const enderecoCompleto = `${formData.rua}, ${formData.numero}, ${formData.bairro}, ${formData.cidade}, RS`;
       const response = await enviarDenuncia({
         ...formData,
+        endereco: enderecoCompleto,
         conselheiroRecebeu: conselheiroQuery,
         assinatura: assinatura
       });
@@ -59,7 +65,10 @@ function RecebimentoDenuncia() {
         fatos: '',
         nomeDataNascimentoCriancaAdolescente: '',
         nomesPaisResponsaveis: '',
-        endereco: '',
+        rua: '',
+        numero: '',
+        bairro: '',
+        cidade: '',
         conselheiroRecebeu: '',
         dataAveriguacao: '',
         conselheiroEfetuouAveriguacao: ''
@@ -212,14 +221,52 @@ function RecebimentoDenuncia() {
               />
             </Form.Group>
 
-            <Form.Group className="mb-3" controlId="formEndereco">
-              <Form.Label>Endereço Completo</Form.Label>
+            <Row className="mb-3">
+              <Form.Group as={Col} md="6" controlId="formRua">
+                <Form.Label>Rua</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="rua"
+                  value={formData.rua}
+                  onChange={handleChange}
+                  placeholder="Nome da rua"
+                  required
+                />
+              </Form.Group>
+
+              <Form.Group as={Col} md="3" controlId="formNumero">
+                <Form.Label>Número</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="numero"
+                  value={formData.numero}
+                  onChange={handleChange}
+                  placeholder="Número"
+                  required
+                />
+              </Form.Group>
+
+              <Form.Group as={Col} md="3" controlId="formBairro">
+                <Form.Label>Bairro</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="bairro"
+                  value={formData.bairro}
+                  onChange={handleChange}
+                  placeholder="Bairro"
+                  required
+                />
+              </Form.Group>
+            </Row>
+
+            <Form.Group className="mb-3" controlId="formCidade">
+              <Form.Label>Cidade</Form.Label>
               <Form.Control
                 type="text"
-                name="endereco"
-                value={formData.endereco}
+                name="cidade"
+                value={formData.cidade}
                 onChange={handleChange}
-                placeholder="Rua, Número, Bairro, Cidade, Estado, CEP"
+                placeholder="Cidade"
                 required
               />
             </Form.Group>

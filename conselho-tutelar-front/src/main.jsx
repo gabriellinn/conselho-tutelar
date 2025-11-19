@@ -22,6 +22,7 @@ import PerfilAdministrador from './pages/perfilAdministrador/PerfilAdministrador
 import GerenciarProfissionais from './pages/gerenciarProfissionais/GerenciarProfissionais.jsx';
 import CadastrarProfissional from './pages/cadastrarProfissionais/CadastrarProfissional.jsx';
 import VisualizarDocumentos from './pages/visualizarDocumentos/VisualizarDocumentos.jsx';
+import Mapa from './pages/mapas/mapa.jsx';
 
 const router = createBrowserRouter([
   {
@@ -73,6 +74,10 @@ const router = createBrowserRouter([
       {
         path: "visualizar-documentos",
         element: <VisualizarDocumentos />,
+      },
+      {
+        path: "mapas",
+        element: <Mapa />,
       },
     ],
   },

@@ -143,3 +143,14 @@ CREATE TABLE Notificacao (
     FOREIGN KEY (idSecretario) REFERENCES Secretario(id_secretaria),
     FOREIGN KEY (idMedida_idMaior) REFERENCES Maioridade(idMaior)
 );
+
+CREATE TABLE MarcadoresMapa (
+    idMarcador INT PRIMARY KEY AUTO_INCREMENT,
+    endereco VARCHAR(500),
+    latitude DECIMAL(10, 8),
+    longitude DECIMAL(11, 8),
+    tipoDocumento VARCHAR(50),
+    idDocumento INT,
+    descricao TEXT,
+    dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

@@ -119,8 +119,8 @@ function VisualizarDocumentos() {
       <Container className="visualizar-documentos-container">
         <Card className="visualizar-documentos-card">
           <Card.Header className="visualizar-documentos-header">
-            <h2 className="visualizar-documentos-title mb-0">
-              <i className="bi bi-file-earmark-text me-2"></i>
+            <h2 className="visualizar-documentos-title mb-0 text-white">
+              <i className="bi bi-file-earmark-text me-2 text-white"></i>
               Documentos Salvos
             </h2>
           </Card.Header>

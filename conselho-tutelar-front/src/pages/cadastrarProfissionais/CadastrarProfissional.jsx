@@ -11,7 +11,10 @@ function CadastrarProfissional() {
         rg: '',
         dataNascimento: '',
         email: '',
-        endereco: '',
+        rua: '',
+        numero: '',
+        bairro: '',
+        cidade: '',
         celularDDD: '',
         celularNumero: '',
         fotoPerfil: null, // Para armazenar o arquivo da imagem
@@ -34,7 +37,13 @@ function CadastrarProfissional() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('Dados do Novo Profissional:', formData);
+        // Combinar campos de endereço
+        const enderecoCompleto = `${formData.rua}, ${formData.numero}, ${formData.bairro}, ${formData.cidade}, RS`;
+        const dadosCompletos = {
+            ...formData,
+            endereco: enderecoCompleto
+        };
+        console.log('Dados do Novo Profissional:', dadosCompletos);
         // Aqui você enviaria os dados para uma API
         alert('Profissional cadastrado! Verifique o console para os dados.');
         // Opcional: Redirecionar o usuário após o cadastro
@@ -153,15 +162,57 @@ function CadastrarProfissional() {
                                 </Col>
                             </Form.Group>
 
-                            <Form.Group as={Row} className="mb-3 align-items-center" controlId="formEndereco">
-                                <Form.Label column sm="3">Endereço:</Form.Label>
+                            <Form.Group as={Row} className="mb-3 align-items-center" controlId="formRua">
+                                <Form.Label column sm="3">Rua:</Form.Label>
                                 <Col sm="9">
                                     <Form.Control
                                         type="text"
-                                        name="endereco"
-                                        value={formData.endereco}
+                                        name="rua"
+                                        value={formData.rua}
                                         onChange={handleChange}
-                                        placeholder="Rua, Número, Bairro, Cidade, Estado, CEP"
+                                        placeholder="Nome da rua"
+                                        required
+                                    />
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-3 align-items-center" controlId="formNumero">
+                                <Form.Label column sm="3">Número:</Form.Label>
+                                <Col sm="9">
+                                    <Form.Control
+                                        type="text"
+                                        name="numero"
+                                        value={formData.numero}
+                                        onChange={handleChange}
+                                        placeholder="Número"
+                                        required
+                                    />
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-3 align-items-center" controlId="formBairro">
+                                <Form.Label column sm="3">Bairro:</Form.Label>
+                                <Col sm="9">
+                                    <Form.Control
+                                        type="text"
+                                        name="bairro"
+                                        value={formData.bairro}
+                                        onChange={handleChange}
+                                        placeholder="Bairro"
+                                        required
+                                    />
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-3 align-items-center" controlId="formCidade">
+                                <Form.Label column sm="3">Cidade:</Form.Label>
+                                <Col sm="9">
+                                    <Form.Control
+                                        type="text"
+                                        name="cidade"
+                                        value={formData.cidade}
+                                        onChange={handleChange}
+                                        placeholder="Cidade"
                                         required
                                     />
                                 </Col>

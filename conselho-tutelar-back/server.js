@@ -2,6 +2,7 @@
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
+const https = require('https');
 require('dotenv').config();
 
 // Cria uma instância do Express
@@ -51,6 +52,66 @@ const query = async (sql, params = []) => {
     } catch (error) {
         console.error('Erro na query:', error);
         throw error;
+    }
+};
+
+// Função para geocodificar endereço usando Nominatim (OpenStreetMap)
+const geocodificarEndereco = async (endereco) => {
+    try {
+        if (!endereco || endereco.trim() === '' || endereco === 'N/A') {
+            console.log('[GEOCODIFICAÇÃO] Endereço vazio ou inválido');
+            return null;
+        }
+
+        // Adiciona "Panambi, RS, Brasil" ao endereço para melhorar a precisão
+        const enderecoCompleto = `${endereco}, Panambi, RS, Brasil`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(enderecoCompleto)}&limit=1`;
+        
+        console.log(`[GEOCODIFICAÇÃO] Fazendo requisição para: ${url}`);
+        
+        return new Promise((resolve, reject) => {
+            https.get(url, {
+                headers: {
+                    'User-Agent': 'ConselhoTutelarApp/1.0'
+                }
+            }, (res) => {
+                let data = '';
+                
+                res.on('data', (chunk) => {
+                    data += chunk;
+                });
+                
+                res.on('end', () => {
+                    try {
+                        const results = JSON.parse(data);
+                        console.log(`[GEOCODIFICAÇÃO] Resposta recebida. Resultados encontrados: ${results ? results.length : 0}`);
+                        if (results && results.length > 0) {
+                            const location = results[0];
+                            const coordenadas = {
+                                latitude: parseFloat(location.lat),
+                                longitude: parseFloat(location.lon),
+                                enderecoFormatado: location.display_name
+                            };
+                            console.log(`[GEOCODIFICAÇÃO] Coordenadas extraídas:`, coordenadas);
+                            resolve(coordenadas);
+                        } else {
+                            console.log(`[GEOCODIFICAÇÃO] Endereço não encontrado na API: ${endereco}`);
+                            resolve(null);
+                        }
+                    } catch (error) {
+                        console.error('[GEOCODIFICAÇÃO] Erro ao processar resposta:', error);
+                        console.error('[GEOCODIFICAÇÃO] Dados recebidos:', data.substring(0, 200));
+                        resolve(null);
+                    }
+                });
+            }).on('error', (error) => {
+                console.error('[GEOCODIFICAÇÃO] Erro na requisição HTTPS:', error);
+                resolve(null);
+            });
+        });
+    } catch (error) {
+        console.error('[GEOCODIFICAÇÃO] Erro geral na geocodificação:', error);
+        return null;
     }
 };
 
@@ -180,6 +241,37 @@ app.post('/denuncias', async (req, res) => {
             Data_averiguacao: dataAveriguacao || null,
             Observacao: observacao
         };
+
+        // Criar pin no mapa se houver endereço
+        if (endereco && endereco.trim() !== '' && endereco !== 'N/A') {
+            try {
+                console.log(`[GEOCODIFICAÇÃO] Tentando geocodificar endereço: ${endereco}`);
+                const coordenadas = await geocodificarEndereco(endereco);
+                if (coordenadas) {
+                    console.log(`[GEOCODIFICAÇÃO] Coordenadas encontradas: lat=${coordenadas.latitude}, lng=${coordenadas.longitude}`);
+                    const descricao = `Denúncia #${nrDenuncia}: ${fatos ? fatos.substring(0, 100) : 'Sem descrição'}...`;
+                    try {
+                        await query(
+                            'INSERT INTO MarcadoresMapa (endereco, latitude, longitude, tipoDocumento, idDocumento, descricao) VALUES (?, ?, ?, ?, ?, ?)',
+                            [endereco, coordenadas.latitude, coordenadas.longitude, 'denuncia', nrDenuncia, descricao]
+                        );
+                        console.log(`[SUCCESS] Pin criado para denúncia #${nrDenuncia} no endereço: ${endereco}`);
+                    } catch (dbError) {
+                        console.error('[ERRO DB] Erro ao inserir marcador no banco:', dbError);
+                        console.error('[ERRO DB] Detalhes:', dbError.message);
+                        // Não falha a criação da denúncia se o pin falhar
+                    }
+                } else {
+                    console.log(`[GEOCODIFICAÇÃO] Não foi possível geocodificar o endereço: ${endereco}`);
+                }
+            } catch (error) {
+                console.error('[ERRO] Erro ao criar pin no mapa:', error);
+                console.error('[ERRO] Stack:', error.stack);
+                // Não falha a criação da denúncia se o pin falhar
+            }
+        } else {
+            console.log(`[INFO] Endereço não fornecido ou inválido para denúncia #${nrDenuncia}. Endereço: "${endereco}"`);
+        }
 
         res.status(201).json({ message: 'Denúncia criada com sucesso', denuncia });
     } catch (error) {
@@ -523,6 +615,55 @@ app.get('/documentos', async (req, res) => {
     } catch (error) {
         console.error('Erro ao buscar documentos:', error);
         res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// ==================== MARCADORES DO MAPA ====================
+// Endpoint para buscar todos os marcadores do mapa
+app.get('/marcadores-mapa', async (req, res) => {
+    try {
+        const marcadores = await query('SELECT * FROM MarcadoresMapa ORDER BY dataCriacao DESC');
+        res.json(marcadores);
+    } catch (error) {
+        console.error('Erro ao buscar marcadores:', error);
+        res.status(500).json({ error: 'Erro ao buscar marcadores', details: error.message });
+    }
+});
+
+// Endpoint para criar um marcador manualmente (opcional)
+app.post('/marcadores-mapa', async (req, res) => {
+    try {
+        const { endereco, tipoDocumento, idDocumento, descricao } = req.body;
+
+        if (!endereco) {
+            return res.status(400).json({ error: 'Endereço é obrigatório' });
+        }
+
+        const coordenadas = await geocodificarEndereco(endereco);
+        
+        if (!coordenadas) {
+            return res.status(400).json({ error: 'Não foi possível geocodificar o endereço' });
+        }
+
+        const result = await query(
+            'INSERT INTO MarcadoresMapa (endereco, latitude, longitude, tipoDocumento, idDocumento, descricao) VALUES (?, ?, ?, ?, ?, ?)',
+            [endereco, coordenadas.latitude, coordenadas.longitude, tipoDocumento || null, idDocumento || null, descricao || null]
+        );
+
+        const marcador = {
+            idMarcador: result.insertId,
+            endereco,
+            latitude: coordenadas.latitude,
+            longitude: coordenadas.longitude,
+            tipoDocumento: tipoDocumento || null,
+            idDocumento: idDocumento || null,
+            descricao: descricao || null
+        };
+
+        res.status(201).json({ message: 'Marcador criado com sucesso', marcador });
+    } catch (error) {
+        console.error('Erro ao criar marcador:', error);
+        res.status(500).json({ error: 'Erro ao criar marcador', details: error.message });
     }
 });
 

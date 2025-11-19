@@ -2,6 +2,7 @@ import React from "react"
 
 import logo from "../assets/logo.png"
 import { IoPerson } from "react-icons/io5";
+import { IoMap } from "react-icons/io5";
 
 import { Link } from 'react-router-dom';
 
@@ -14,6 +15,7 @@ const NavBar = () => {
                         <Link to="/home"><img src={logo} style={{ width: "80px" }} /></Link>
                     </div>
                     <div className="d-flex">
+                        <Link to="/home/mapas"><button type="button" className="btn btn-primary me-3"><IoMap />Mapas</button></Link>
                         <Link to="/"><button type="button" className="btn btn-primary me-3">Login</button></Link>
                         <Link to="perfil-administrador"><button type="button" className="btn btn-primary me-3"><IoPerson />Perfil</button></Link>
                     </div>
