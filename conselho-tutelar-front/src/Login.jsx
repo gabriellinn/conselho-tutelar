@@ -1,26 +1,36 @@
-import React from "react"
-import { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "./context/AuthContext";
 
 import './Login.css'
 
 
 function Login() {
   const navigate = useNavigate();
+  const { login, user } = useAuth();
 
-  const [usuario, setUsuario] = useState("admin")
-  const [senha, setSenha] = useState("admin")
+  const [usuario, setUsuario] = useState("")
+  const [senha, setSenha] = useState("")
+  const [erro, setErro] = useState("")
 
   const handleLogin = (e) => {
     e.preventDefault()
+    setErro("")
 
-    if (usuario == "admin" && senha == "admin") {
+    const resultado = login(usuario.trim(), senha.trim());
+
+    if (resultado.sucesso) {
+      navigate('/home');
+    } else {
+      setErro(resultado.mensagem || 'Não foi possível autenticar.');
+    }
+  }
+
+  useEffect(() => {
+    if (user) {
       navigate('/home');
     }
-
-    // Handle login logic here
-    console.log("Login attempt:", { usuario, senha })
-  }
+  }, [user, navigate]);
 
   return (
     <>
@@ -53,7 +63,7 @@ function Login() {
                   fontSize: "14px",
                 }}
                 onFocus={(e) => {
-                  e.target.style.borderColor = "#4A90E2"
+                  e.target.style.borderColor = "#3159A3"
                   e.target.style.boxShadow = "0 0 0 0.2rem rgba(74, 144, 226, 0.25)"
                 }}
                 onBlur={(e) => {
@@ -79,7 +89,7 @@ function Login() {
                   fontSize: "14px",
                 }}
                 onFocus={(e) => {
-                  e.target.style.borderColor = "#4A90E2"
+                  e.target.style.borderColor = "#3159A3"
                   e.target.style.boxShadow = "0 0 0 0.2rem rgba(74, 144, 226, 0.25)"
                 }}
                 onBlur={(e) => {
@@ -90,22 +100,28 @@ function Login() {
               />
             </div>
 
+            {erro && (
+              <div className="alert alert-danger small" role="alert">
+                {erro}
+              </div>
+            )}
+
             <button
               type="submit"
               className="btn w-100 text-white fw-medium"
               style={{
-                backgroundColor: "#4A90E2",
-                borderColor: "#4A90E2",
+                backgroundColor: "#3159A3",
+                borderColor: "#3159A3",
                 padding: "10px 16px",
                 fontSize: "14px",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#357ABD"
-                e.currentTarget.style.borderColor = "#357ABD"
+                e.currentTarget.style.backgroundColor = "#3159A3"
+                e.currentTarget.style.borderColor = "#3159A3"
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#4A90E2"
-                e.currentTarget.style.borderColor = "#4A90E2"
+                e.currentTarget.style.backgroundColor = "#3159A3"
+                e.currentTarget.style.borderColor = "#3159A3"
               }}
             >
               Log in

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style.css'; // Reutiliza o mesmo arquivo CSS para a estilização
-import Assinatura from '../../Assinatura/Assinatura';
+import { assinaturaPadrao } from '../../../utils/assinaturaPadrao';
 
 function TermoMedidasResponsaveis() {
   const [formData, setFormData] = useState({
@@ -19,14 +19,6 @@ function TermoMedidasResponsaveis() {
     medidaVII: false,
     medidaVIII: false,
   });
-  const [assinatura, setAssinatura] = useState({
-    tipo: 'certificado',
-    nome: '',
-    imagem: null,
-    certificado: null,
-    senhaCertificado: ''
-  });
-
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prevState => ({
@@ -41,7 +33,7 @@ function TermoMedidasResponsaveis() {
       const { enviarTermoMedidasResponsavel } = await import('../../../api/termosMedidas');
       const response = await enviarTermoMedidasResponsavel({
         ...formData,
-        assinatura: assinatura
+        assinatura: assinaturaPadrao
       });
       alert('Termo de Medidas salvo com sucesso!');
       // Reset form
@@ -191,14 +183,6 @@ function TermoMedidasResponsaveis() {
                 className="mb-2"
               />
             </div>
-
-            <Assinatura
-              onAssinaturaChange={setAssinatura}
-              tipoAssinatura={assinatura.tipo}
-              nomeAssinatura={assinatura.nome}
-              imagemAssinatura={assinatura.imagem}
-              certificado={assinatura.certificado}
-            />
 
             <div className="d-grid gap-2">
               <Button variant="primary" type="submit" size="lg" className="generate-document-button">

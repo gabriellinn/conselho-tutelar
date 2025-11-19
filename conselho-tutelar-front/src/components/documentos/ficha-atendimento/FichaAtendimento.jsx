@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style.css'; // Reutiliza o mesmo arquivo CSS para a estilização
-import Assinatura from '../../Assinatura/Assinatura';
+import { assinaturaPadrao } from '../../../utils/assinaturaPadrao';
 
 function FichaAtendimento() {
   const [formData, setFormData] = useState({
@@ -12,14 +12,6 @@ function FichaAtendimento() {
     relatos: '',
     quemEhOViolador: ''
   });
-  const [assinatura, setAssinatura] = useState({
-    tipo: 'certificado',
-    nome: '',
-    imagem: null,
-    certificado: null,
-    senhaCertificado: ''
-  });
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -34,7 +26,7 @@ function FichaAtendimento() {
       const { enviarAtendimento } = await import('../../../api/atendimento');
       const response = await enviarAtendimento({
         ...formData,
-        assinatura: assinatura
+        assinatura: assinaturaPadrao
       });
       alert('Ficha de Atendimento salva com sucesso!');
       // Reset form
@@ -125,14 +117,6 @@ function FichaAtendimento() {
                 required
               />
             </Form.Group>
-
-            <Assinatura
-              onAssinaturaChange={setAssinatura}
-              tipoAssinatura={assinatura.tipo}
-              nomeAssinatura={assinatura.nome}
-              imagemAssinatura={assinatura.imagem}
-              certificado={assinatura.certificado}
-            />
 
             <div className="d-grid gap-2">
               <Button variant="primary" type="submit" size="lg" className="generate-document-button">

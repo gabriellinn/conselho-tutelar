@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style.css'; // Reutiliza o mesmo arquivo CSS para a estilização
-import Assinatura from '../../Assinatura/Assinatura';
+import { assinaturaPadrao } from '../../../utils/assinaturaPadrao';
 
 function Notificacao() {
   const [formData, setFormData] = useState({
@@ -11,14 +11,6 @@ function Notificacao() {
     nomeQuemRecebeu: '',
     segundaViaConvocacao: '' // Este campo é para o texto da segunda via da convocação
   });
-  const [assinatura, setAssinatura] = useState({
-    tipo: 'certificado',
-    nome: '',
-    imagem: null,
-    certificado: null,
-    senhaCertificado: ''
-  });
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -33,7 +25,7 @@ function Notificacao() {
       const { enviarNotificacao } = await import('../../../api/notificacao');
       const response = await enviarNotificacao({
         ...formData,
-        assinatura: assinatura
+        assinatura: assinaturaPadrao
       });
       alert('Notificação salva com sucesso!');
       // Reset form
@@ -111,14 +103,6 @@ function Notificacao() {
                 required
               />
             </Form.Group>
-
-            <Assinatura
-              onAssinaturaChange={setAssinatura}
-              tipoAssinatura={assinatura.tipo}
-              nomeAssinatura={assinatura.nome}
-              imagemAssinatura={assinatura.imagem}
-              certificado={assinatura.certificado}
-            />
 
             <div className="d-grid gap-2">
               <Button variant="primary" type="submit" size="lg" className="generate-document-button">

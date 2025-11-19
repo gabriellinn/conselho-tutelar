@@ -34,8 +34,8 @@ body {
 }
 
 .profile-button {
-    background-color: #007bff; /* Azul padrão Bootstrap */
-    border-color: #007bff;
+    background-color: #3159A3; /* Azul padrão Bootstrap */
+    border-color: #3159A3;
     border-radius: 20px; /* Botão de perfil arredondado */
     padding: 0.5rem 1.2rem;
     font-size: 0.9rem;
@@ -45,8 +45,8 @@ body {
 }
 
 .profile-button:hover {
-    background-color: #0056b3;
-    border-color: #004085;
+    background-color: #3159A3;
+    border-color: #3159A3;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -66,7 +66,7 @@ body {
 .dashboard-title {
     font-size: 2rem;
     font-weight: 700;
-    color: #0056b3 !important; /* Cor azul forte */
+    color: #3159A3 !important; /* Cor azul forte */
     margin-bottom: 2.5rem; /* Mais espaço abaixo do título */
 }
 
@@ -80,8 +80,8 @@ body {
 }
 
 .dashboard-search-bar .form-control:focus {
-    border-color: #80bdff; /* Cor de foco azul */
-    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.15); /* Sombra mais suave no foco */
+    border-color: #3159A3; /* Cor de foco azul */
+    box-shadow: 0 0 0 0.25rem rgba(49, 89, 163, 0.15); /* Sombra mais suave no foco */
 }
 
 .dashboard-search-bar .input-group-text,
@@ -100,7 +100,7 @@ body {
 }
 
 .search-icon-button:hover {
-    color: #007bff; /* Azul no hover */
+    color: #3159A3; /* Azul no hover */
 }
 
 
@@ -144,7 +144,7 @@ body {
 }
 
 .form-list-item:hover i.bi-plus {
-    color: #007bff; /* Azul no hover */
+    color: #3159A3; /* Azul no hover */
 }
 
 /* Ajustes para responsividade */

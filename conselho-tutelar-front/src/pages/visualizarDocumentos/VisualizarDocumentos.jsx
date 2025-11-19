@@ -3,6 +3,7 @@ import { Container, Card, Table, Badge, Button, Spinner, Alert, InputGroup, Form
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { buscarTodosDocumentos } from '../../api/documentos';
 import { gerarPDF } from '../../utils/gerarPDF';
+import { documentosFalsos } from '../../utils/dadosFalsos';
 import './VisualizarDocumentos.css';
 
 function VisualizarDocumentos() {
@@ -12,6 +13,14 @@ function VisualizarDocumentos() {
   const [termoPesquisa, setTermoPesquisa] = useState('');
   const [filtroTipo, setFiltroTipo] = useState('todos');
 
+  const aplicarFallbackDocumentos = (dadosReais) => ({
+    denuncias: dadosReais?.denuncias?.length ? dadosReais.denuncias : documentosFalsos.denuncias,
+    atendimentos: dadosReais?.atendimentos?.length ? dadosReais.atendimentos : documentosFalsos.atendimentos,
+    notificacoes: dadosReais?.notificacoes?.length ? dadosReais.notificacoes : documentosFalsos.notificacoes,
+    termosMedidasMenor: dadosReais?.termosMedidasMenor?.length ? dadosReais.termosMedidasMenor : documentosFalsos.termosMedidasMenor,
+    termosMedidasResponsavel: dadosReais?.termosMedidasResponsavel?.length ? dadosReais.termosMedidasResponsavel : documentosFalsos.termosMedidasResponsavel
+  });
+
   useEffect(() => {
     carregarDocumentos();
   }, []);
@@ -20,11 +29,13 @@ function VisualizarDocumentos() {
     try {
       setLoading(true);
       const dados = await buscarTodosDocumentos();
-      setDocumentos(dados);
+      const dadosComFallback = aplicarFallbackDocumentos(dados || {});
+      setDocumentos(dadosComFallback);
       setError(null);
     } catch (err) {
-      console.error('Erro ao carregar documentos:', err);
-      setError('Erro ao carregar documentos. Verifique se o servidor está rodando.');
+      console.error('Erro ao carregar documentos. Usando dados falsos:', err);
+      setDocumentos(documentosFalsos);
+      setError(null);
     } finally {
       setLoading(false);
     }

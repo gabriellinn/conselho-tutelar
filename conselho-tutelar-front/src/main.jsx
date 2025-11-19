@@ -23,6 +23,9 @@ import GerenciarProfissionais from './pages/gerenciarProfissionais/GerenciarProf
 import CadastrarProfissional from './pages/cadastrarProfissionais/CadastrarProfissional.jsx';
 import VisualizarDocumentos from './pages/visualizarDocumentos/VisualizarDocumentos.jsx';
 import Mapa from './pages/mapas/mapa.jsx';
+import PerfilConselheiro from './pages/perfilConselheiro/PerfilConselheiro.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
 
 const router = createBrowserRouter([
   {
@@ -32,7 +35,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/home",
-    element: <Home />,
+    element: (
+      <ProtectedRoute>
+        <Home />
+      </ProtectedRoute>
+    ),
     errorElement: <ErrorPage />,
     children: [
       {
@@ -61,15 +68,35 @@ const router = createBrowserRouter([
       },
       {
         path: "perfil-administrador",
-        element: <PerfilAdministrador />,
+        element: (
+          <ProtectedRoute roles={['admin']}>
+            <PerfilAdministrador />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "gerenciar-profissionais",
-        element: <GerenciarProfissionais />,
+        element: (
+          <ProtectedRoute roles={['admin']}>
+            <GerenciarProfissionais />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "cadastrar-profissional",
-        element: <CadastrarProfissional />,
+        element: (
+          <ProtectedRoute roles={['admin']}>
+            <CadastrarProfissional />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "perfil-conselheiro",
+        element: (
+          <ProtectedRoute roles={['conselheiro']}>
+            <PerfilConselheiro />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "visualizar-documentos",
@@ -85,6 +112,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </StrictMode>,
 )

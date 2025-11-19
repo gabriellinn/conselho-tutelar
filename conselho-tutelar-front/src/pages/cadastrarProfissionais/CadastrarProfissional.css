@@ -23,13 +23,13 @@
 .cadastrar-profissional-title {
     font-size: 2rem;
     font-weight: 700;
-    color: #0056b3; /* Azul forte */
+    color: #3159A3; /* Azul forte */
     margin-bottom: 2.5rem;
 }
 
 /* Estilo para o cabeçalho da seção "Dados" */
 .form-section-header {
-    background-color: #007bff; /* Azul primário */
+    background-color: #3159A3; /* Azul primário */
     color: white;
     padding: 0.8rem 1.5rem;
     border-radius: 8px 8px 0 0; /* Bordas arredondadas apenas no topo */
@@ -58,8 +58,8 @@
 }
 
 .form-control:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+    border-color: #3159A3;
+    box-shadow: 0 0 0 0.25rem rgba(49, 89, 163, 0.25);
 }
 
 /* Campos de Rádio (Cargo) */
@@ -67,8 +67,8 @@
     margin-right: 1.5rem;
 }
 .form-check-input:checked {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: #3159A3;
+    border-color: #3159A3;
 }
 
 /* Campo de Celular */

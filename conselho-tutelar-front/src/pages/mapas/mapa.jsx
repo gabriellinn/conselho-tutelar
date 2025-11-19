@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { buscarMarcadores } from '../../api/marcadores';
+import { marcadoresFalsos } from '../../utils/dadosFalsos';
 
 // CSS da Leaflet
 import 'leaflet/dist/leaflet.css'; 
@@ -18,6 +19,39 @@ L.Icon.Default.mergeOptions({
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
+
+const tipoCores = {
+    'denuncia': '#e11d48',
+    'atendimento': '#3159A3',
+    'notificacao': '#f97316',
+    'termo-medidas-menor': '#14b8a6',
+    'termo-medidas-responsavel': '#22c55e',
+    'default': '#6b7280'
+};
+
+const tipoLabels = {
+    'denuncia': 'Denúncia',
+    'atendimento': 'Atendimento',
+    'notificacao': 'Notificação',
+    'termo-medidas-menor': 'Termo Medidas (Menor)',
+    'termo-medidas-responsavel': 'Termo Medidas (Responsável)'
+};
+
+const markerIconCache = {};
+
+const getMarkerIcon = (tipo) => {
+    const cor = tipoCores[tipo] || tipoCores.default;
+    if (!markerIconCache[cor]) {
+        markerIconCache[cor] = L.divIcon({
+            className: 'custom-marker-icon',
+            html: `<span class="marker-dot" style="background:${cor};border-color:${cor};"></span>`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 24],
+            popupAnchor: [0, -24]
+        });
+    }
+    return markerIconCache[cor];
+};
 
 const Mapa = () => {
     // As coordenadas de Panambi continuam no centro
@@ -34,25 +68,23 @@ const Mapa = () => {
             setLoading(true);
             console.log('[MAPA] Carregando marcadores...');
             const dados = await buscarMarcadores();
-            console.log('[MAPA] Marcadores carregados:', dados);
-            console.log('[MAPA] Total de marcadores:', dados.length);
-            setMarcadores(dados);
+            if (dados?.length) {
+                console.log('[MAPA] Marcadores carregados do servidor:', dados.length);
+                setMarcadores(dados);
+            } else {
+                console.warn('[MAPA] Nenhum marcador encontrado no servidor. Aplicando dados falsos.');
+                setMarcadores(marcadoresFalsos);
+            }
         } catch (error) {
-            console.error('[MAPA] Erro ao carregar marcadores:', error);
+            console.error('[MAPA] Erro ao carregar marcadores, usando dados falsos:', error);
+            setMarcadores(marcadoresFalsos);
         } finally {
             setLoading(false);
         }
     };
 
     const getTipoLabel = (tipo) => {
-        const tipos = {
-            'denuncia': 'Denúncia',
-            'atendimento': 'Atendimento',
-            'notificacao': 'Notificação',
-            'termo-medidas-menor': 'Termo Medidas (Menor)',
-            'termo-medidas-responsavel': 'Termo Medidas (Responsável)'
-        };
-        return tipos[tipo] || tipo || 'Documento';
+        return tipoLabels[tipo] || tipo || 'Documento';
     };
 
     return (
@@ -92,6 +124,7 @@ const Mapa = () => {
                                 <Marker 
                                     key={marcador.idMarcador} 
                                     position={[parseFloat(marcador.latitude), parseFloat(marcador.longitude)]}
+                                    icon={getMarkerIcon(marcador.tipoDocumento)}
                                 >
                                     <Popup>
                                         <strong>{getTipoLabel(marcador.tipoDocumento)}</strong>

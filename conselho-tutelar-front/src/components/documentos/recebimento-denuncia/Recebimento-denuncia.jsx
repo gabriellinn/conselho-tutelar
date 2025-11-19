@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style.css'; // Vamos criar este arquivo para estilos personalizados
-import Assinatura from '../../Assinatura/Assinatura';
+import { assinaturaPadrao } from '../../../utils/assinaturaPadrao';
 
 function RecebimentoDenuncia() {
   const [formData, setFormData] = useState({
@@ -23,14 +23,6 @@ function RecebimentoDenuncia() {
   });
 
   const [conselheiroQuery, setConselheiroQuery] = useState('');
-  const [assinatura, setAssinatura] = useState({
-    tipo: 'certificado',
-    nome: '',
-    imagem: null,
-    certificado: null,
-    senhaCertificado: ''
-  });
-
   useEffect(() => {
     console.log('conselheiroQuery:', conselheiroQuery);
 }, [conselheiroQuery]);
@@ -53,7 +45,7 @@ function RecebimentoDenuncia() {
         ...formData,
         endereco: enderecoCompleto,
         conselheiroRecebeu: conselheiroQuery,
-        assinatura: assinatura
+        assinatura: assinaturaPadrao
       });
       alert('Denúncia salva com sucesso!');
       // Reset form
@@ -74,13 +66,6 @@ function RecebimentoDenuncia() {
         conselheiroEfetuouAveriguacao: ''
       });
       setConselheiroQuery('');
-      setAssinatura({
-        tipo: 'certificado',
-        nome: '',
-        imagem: null,
-        certificado: null,
-        senhaCertificado: ''
-      });
     } catch (error) {
       console.error('Erro ao enviar denúncia:', error);
       alert('Erro ao salvar denúncia. Tente novamente.');
@@ -307,14 +292,6 @@ function RecebimentoDenuncia() {
                 required
               />
             </Form.Group>
-
-            <Assinatura
-              onAssinaturaChange={setAssinatura}
-              tipoAssinatura={assinatura.tipo}
-              nomeAssinatura={assinatura.nome}
-              imagemAssinatura={assinatura.imagem}
-              certificado={assinatura.certificado}
-            />
 
             <div className="d-grid gap-2">
               <Button variant="primary" type="submit" size="lg" className="generate-document-button">

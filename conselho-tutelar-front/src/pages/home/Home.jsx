@@ -1,12 +1,25 @@
-import React from "react"
-import { useState } from "react"
-
+import React, { useEffect } from "react"
 import NavBar from "../../components/NavBar"
 
 import { Outlet } from "react-router-dom"
+import { useAuth } from "../../context/AuthContext"
+import { useNavigate } from "react-router-dom"
 
 
 function Home() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <>
     <div className="container" style={{minWidth: "75vw"}}>

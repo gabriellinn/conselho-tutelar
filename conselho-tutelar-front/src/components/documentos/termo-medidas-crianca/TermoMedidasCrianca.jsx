@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style.css'; // Reutiliza o mesmo arquivo CSS para a estilização
-import Assinatura from '../../Assinatura/Assinatura';
+import { assinaturaPadrao } from '../../../utils/assinaturaPadrao';
 
 function TermoMedidasCriancaAdolescente() {
   const [formData, setFormData] = useState({
@@ -16,14 +16,6 @@ function TermoMedidasCriancaAdolescente() {
     medidaIV: false,
     medidaV: false,
   });
-  const [assinatura, setAssinatura] = useState({
-    tipo: 'certificado',
-    nome: '',
-    imagem: null,
-    certificado: null,
-    senhaCertificado: ''
-  });
-
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prevState => ({
@@ -38,7 +30,7 @@ function TermoMedidasCriancaAdolescente() {
       const { enviarTermoMedidasMenor } = await import('../../../api/termosMedidas');
       const response = await enviarTermoMedidasMenor({
         ...formData,
-        assinatura: assinatura
+        assinatura: assinaturaPadrao
       });
       alert('Termo de Medidas salvo com sucesso!');
       // Reset form
@@ -168,14 +160,6 @@ function TermoMedidasCriancaAdolescente() {
                 className="mb-2"
               />
             </div>
-
-            <Assinatura
-              onAssinaturaChange={setAssinatura}
-              tipoAssinatura={assinatura.tipo}
-              nomeAssinatura={assinatura.nome}
-              imagemAssinatura={assinatura.imagem}
-              certificado={assinatura.certificado}
-            />
 
             <div className="d-grid gap-2">
               <Button variant="primary" type="submit" size="lg" className="generate-document-button">

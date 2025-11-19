@@ -18,7 +18,7 @@ body {
 
 h2 {
   font-weight: 700;
-  color: #0056b3 !important; /* Azul mais escuro para o título */
+  color: #3159A3 !important; /* Azul mais escuro para o título */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,8 +46,8 @@ h2 i {
 }
 
 .form-control:focus, .form-select:focus {
-  border-color: #80bdff;
-  box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+  border-color: #3159A3;
+  box-shadow: 0 0 0 0.25rem rgba(49, 89, 163, 0.25);
 }
 
 .form-check-inline {

@@ -20,12 +20,12 @@
 .visualizar-documentos-title {
     font-size: 2rem;
     font-weight: 700;
-    color: #0056b3; /* Azul forte, consistente com outros títulos */
+    color: #3159A3; /* Azul forte, consistente com outros títulos */
     margin-bottom: 0;
 }
 
 .visualizar-documentos-header {
-    background-color: #007bff; /* Azul primário */
+    background-color: #3159A3; /* Azul primário */
     color: white;
     padding: 1rem 1.5rem;
     border-radius: 15px 15px 0 0; /* Bordas arredondadas apenas no topo */
@@ -50,8 +50,8 @@
 }
 
 .search-input-group .form-control:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.15);
+    border-color: #3159A3;
+    box-shadow: 0 0 0 0.25rem rgba(49, 89, 163, 0.15);
 }
 
 .search-input-group .input-group-text {
@@ -71,8 +71,8 @@
 }
 
 .filter-select:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.15);
+    border-color: #3159A3;
+    box-shadow: 0 0 0 0.25rem rgba(49, 89, 163, 0.15);
     outline: none;
 }
 
@@ -120,7 +120,7 @@
 
 .btn-pdf:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
+    box-shadow: 0 2px 5px rgba(49, 89, 163, 0.2);
 }
 
 /* Badges de resumo */
