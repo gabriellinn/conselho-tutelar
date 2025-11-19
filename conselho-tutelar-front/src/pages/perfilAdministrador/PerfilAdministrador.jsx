@@ -1,11 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Row, Col, Card } from 'react-bootstrap';
+import { Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './PerfilAdministrador.css'; // Mantenha este CSS por enquanto, mas pode ser renomeado para PerfilAdministrador.css se os estilos forem muito específicos
 
 // Mude o nome da função de ProfissionaisMenu para PerfilAdministrador
 function PerfilAdministrador() {
+    // O ProtectedRoute já verifica se o usuário é secretário
+    // Esta página só será renderizada se o usuário tiver permissão
+
     return (
                     <Card.Body>
                         {/* Logo e Título Centralizados */}

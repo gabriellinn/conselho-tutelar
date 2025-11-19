@@ -83,8 +83,13 @@ const NavBar = () => {
                         </Link>
                     </div>
                     <div className="nav-side header-text text-end">
-                       
-                        <small className="text-muted">Painel Administrativo</small>
+                        {user && (
+                            <>
+                                <strong className="d-block">{user.nome}</strong>
+                                <small className="text-muted">{user.cargo}</small>
+                            </>
+                        )}
+                        {!user && <small className="text-muted">Painel Administrativo</small>}
                     </div>
                 </div>
             </nav>
@@ -94,7 +99,6 @@ const NavBar = () => {
                 <div className="drawer-header">
                     <div className="d-flex align-items-center gap-2">
                         <img src={logo} alt="Conselho Tutelar" style={{ width: "56px" }} />
-                        
                     </div>
                     <button className="btn btn-link text-dark p-1" onClick={fecharMenu} aria-label="Fechar menu">
                         <IoClose size={28} />
