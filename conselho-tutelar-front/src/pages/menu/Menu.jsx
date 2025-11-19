@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Row, Col, Card, Form, FormControl, InputGroup, Button } from 'react-bootstrap';
+import { Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Menu.css'; // Novo arquivo para estilos específicos do dashboard/menu
 
 function Menu() {
-    const [searchTerm, setSearchTerm] = useState('');
-
     // Lista dos formulários com seus nomes e caminhos de rota
     const formLinks = [
         { name: "Ficha Recebimento de Denúncia", path: "recebimento-denuncia" },
@@ -16,44 +14,19 @@ function Menu() {
         { name: "Termo Aplicação Medidas Para a Criança ou Adolescente", path: "termo-medidas-crianca" },
     ];
 
-    const filteredForms = formLinks.filter(form =>
-        form.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     return (
                     <Card.Body>
-                        {/* Logo e Título Centralizados */}
-                        <div className="text-center mb-5">
-                            <img
-                                src="./src/assets/logo.png" // Verifique o caminho correto da sua imagem
-                                alt="Logo Conselho Tutelar"
-                                className="dashboard-logo mb-3"
-                            />
-                        </div>
-
-                        {/* Barra de Pesquisa Centralizada */}
-                        <Row className="justify-content-center mb-5">
-                            <Col md={8} lg={6}>
-                                <InputGroup className="dashboard-search-bar">
-                                    <FormControl
-                                        placeholder="O que você procura?"
-                                        aria-label="O que você procura?"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="search-input-dashboard shadow-sm"
-                                    />
-                                    <Button variant="outline-secondary" className="search-icon-button shadow-sm">
-                                        <i className="bi bi-search"></i>
-                                    </Button>
-                                </InputGroup>
+                        <Row className="justify-content-center text-center mb-5">
+                            <Col md={10} lg={8}>
+                                <h2 className="dashboard-title mb-2">Conselho Tutelar de Panambi</h2>
+                                <p className="text-muted mb-0">Sistema de registro de documentos</p>
                             </Col>
                         </Row>
-
                         {/* Lista de Links para Formulários */}
                         <Row className="justify-content-center">
                             <Col md={10} lg={8}>
                                 <div className="form-list-container">
-                                    {filteredForms.map((form, index) => (
+                                    {formLinks.map((form, index) => (
                                         <Link to={form.path} key={index} className="form-list-item-link">
                                             <div className="form-list-item d-flex justify-content-between align-items-center">
                                                 <span>{form.name}</span>
@@ -61,19 +34,6 @@ function Menu() {
                                             </div>
                                         </Link>
                                     ))}
-                                    {filteredForms.length === 0 && (
-                                        <p className="text-center text-muted mt-3">Nenhum formulário encontrado.</p>
-                                    )}
-                                </div>
-                                
-                                {/* Link para Visualizar Documentos */}
-                                <div className="mt-4 text-center">
-                                    <Link to="visualizar-documentos">
-                                        <Button variant="primary" size="lg" className="shadow-sm">
-                                            <i className="bi bi-file-earmark-text me-2"></i>
-                                            Visualizar Documentos Salvos
-                                        </Button>
-                                    </Link>
                                 </div>
                             </Col>
                         </Row>

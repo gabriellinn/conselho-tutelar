@@ -35,19 +35,18 @@ const NavBar = () => {
     ];
 
     const linksAdmin = [
-        { label: "Perfil da Secretaria", to: "/home/perfil-administrador", icon: IoPerson },
-        { label: "Cadastrar Profissionais", to: "/home/cadastrar-profissional", icon: IoAddCircle },
+        { label: "Seu Perfil", to: "/home/perfil-administrador", icon: IoPerson },
         { label: "Gerenciar Profissionais", to: "/home/gerenciar-profissionais", icon: IoPeople },
+        { label: "Cadastrar Profissionais", to: "/home/cadastrar-profissional", icon: IoAddCircle },
     ];
 
     const linksConselheiro = [
         { label: "Meu Perfil", to: "/home/perfil-conselheiro", icon: IoPerson },
     ];
 
-    const navLinks = [
-        ...linksBasicos,
+    const profileLinks = [
         ...(user?.role === 'admin' ? linksAdmin : linksConselheiro),
-        { label: "Sair", icon: IoLogOut, variant: "danger", action: () => { logout(); navigate('/'); } }
+        { label: "Sair do sistema", icon: IoLogOut, variant: "danger", action: () => { logout(); navigate('/'); } }
     ];
 
     const fecharMenu = () => setMenuAberto(false);
@@ -108,30 +107,49 @@ const NavBar = () => {
                 <div className="drawer-section">
                     <p className="drawer-title">Navegação</p>
                     <div className="d-flex flex-column gap-2">
-                        {navLinks.map(({ label, to, icon: Icon, variant, action }) =>
-                            action ? (
-                                <button
-                                    key={label}
-                                    onClick={() => handleLinkClick(action)}
-                                    className={`drawer-link ${variant === 'danger' ? 'drawer-link-danger' : ''}`}
-                                >
-                                    {Icon && <Icon className="me-2" />}
-                                    {label}
-                                </button>
-                            ) : (
-                                <Link
-                                    key={label}
-                                    to={to}
-                                    onClick={fecharMenu}
-                                    className="drawer-link"
-                                >
-                                    {Icon && <Icon className="me-2" />}
-                                    {label}
-                                </Link>
-                            )
-                        )}
+                        {linksBasicos.map(({ label, to, icon: Icon }) => (
+                            <Link
+                                key={label}
+                                to={to}
+                                onClick={fecharMenu}
+                                className="drawer-link"
+                            >
+                                {Icon && <Icon className="me-2" />}
+                                {label}
+                            </Link>
+                        ))}
                     </div>
                 </div>
+
+                {profileLinks.length > 0 && (
+                    <div className="drawer-section">
+                        <p className="drawer-title">Perfil e gestão</p>
+                        <div className="d-flex flex-column gap-2">
+                            {profileLinks.map(({ label, to, icon: Icon, variant, action }) =>
+                                action ? (
+                                    <button
+                                        key={label}
+                                        onClick={() => handleLinkClick(action)}
+                                        className={`drawer-link ${variant === 'danger' ? 'drawer-link-danger' : ''}`}
+                                    >
+                                        {Icon && <Icon className="me-2" />}
+                                        {label}
+                                    </button>
+                                ) : (
+                                    <Link
+                                        key={label}
+                                        to={to}
+                                        onClick={fecharMenu}
+                                        className="drawer-link"
+                                    >
+                                        {Icon && <Icon className="me-2" />}
+                                        {label}
+                                    </Link>
+                                )
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 <div className="drawer-section">
                     <p className="drawer-title d-flex align-items-center gap-2">
